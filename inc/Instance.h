@@ -76,6 +76,7 @@ private:
 	  int num_of_agents;
 	  vector<int> start_locations;
 	  vector<int> goal_locations;
+      ConstraintTable dynamic_obstacles_constraints = ConstraintTable(0, 0);
 
 	  bool loadMap();
 	  void printMap() const;
