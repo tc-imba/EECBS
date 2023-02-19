@@ -428,7 +428,7 @@ bool CBS::findPathForSingleAgent(CBSNode*  node, int ag, int lowerbound)
 	// CAT cat(node->makespan + 1);  // initialized to false
 	// updateReservationTable(cat, ag, *node);
 	// find a path
-	Path new_path = search_engines[ag]->findOptimalPath(*node, initial_constraints[ag], paths, ag, lowerbound);
+	Path new_path = search_engines[ag]->findOptimalPath(*node, initial_constraints[ag], dynamic_obstacles_constraints, paths, ag, lowerbound);
 	num_LL_expanded += search_engines[ag]->num_expanded;
 	num_LL_generated += search_engines[ag]->num_generated;
 	runtime_build_CT += search_engines[ag]->runtime_build_CT;
@@ -1204,7 +1204,10 @@ bool CBS::solve(double _time_limit, int _cost_lowerbound, int _cost_upperbound)
 	// set timer
 	start = clock();
 
-	generateRoot();
+    if (!generateRoot()) {
+        problem_feasible = false;
+        return solution_found;
+    }
 
 	while (!cleanup_list.empty() && !solution_found)
 	{
@@ -1454,28 +1457,32 @@ void CBS::addConstraints(const HLNode* curr, HLNode* child1, HLNode* child2) con
 
 CBS::CBS(vector<SingleAgentSolver*>& search_engines,
 	const vector<ConstraintTable>& initial_constraints,
+    const ConstraintTable& dynamic_obstacles_constraints,
 	vector<Path>& paths_found_initially, int screen) :
 	screen(screen), suboptimality(1), 
-	initial_constraints(initial_constraints), paths_found_initially(paths_found_initially),
+	initial_constraints(initial_constraints),
+    dynamic_obstacles_constraints(dynamic_obstacles_constraints),
+    paths_found_initially(paths_found_initially),
 	search_engines(search_engines), 
 	mdd_helper(initial_constraints, search_engines),
 	rectangle_helper(search_engines[0]->instance),
 	mutex_helper(search_engines[0]->instance, initial_constraints),
 	corridor_helper(search_engines, initial_constraints),
-	heuristic_helper(search_engines.size(), paths, search_engines, initial_constraints, mdd_helper)
+	heuristic_helper(search_engines.size(), paths, search_engines, initial_constraints, dynamic_obstacles_constraints, mdd_helper)
 {
 	num_of_agents = (int) search_engines.size();
 	mutex_helper.search_engines = search_engines;
 }
 
-CBS::CBS(const Instance& instance, bool sipp, int screen) :
+CBS::CBS(const Instance& instance, bool sipp, int screen, const ConstraintTable& dynamic_obstacles_constraints) :
 	screen(screen), suboptimality(1),
 	num_of_agents(instance.getDefaultNumberOfAgents()),
 	mdd_helper(initial_constraints, search_engines),
+    dynamic_obstacles_constraints(dynamic_obstacles_constraints),
 	rectangle_helper(instance),
 	mutex_helper(instance, initial_constraints),
 	corridor_helper(search_engines, initial_constraints),
-	heuristic_helper(instance.getDefaultNumberOfAgents(), paths, search_engines, initial_constraints, mdd_helper)
+	heuristic_helper(instance.getDefaultNumberOfAgents(), paths, search_engines, initial_constraints, dynamic_obstacles_constraints, mdd_helper)
 {
 	clock_t t = clock();
 	initial_constraints.resize(num_of_agents, 
@@ -1550,7 +1557,7 @@ bool CBS::generateRoot()
 		{
 			//CAT cat(dummy_start->makespan + 1);  // initialized to false
 			//updateReservationTable(cat, i, *dummy_start);
-			paths_found_initially[i] = search_engines[i]->findOptimalPath(*root, initial_constraints[i], paths, i, 0);
+			paths_found_initially[i] = search_engines[i]->findOptimalPath(*root, initial_constraints[i], dynamic_obstacles_constraints, paths, i, 0);
 			if (paths_found_initially[i].empty())
 			{
 				if (screen >= 2)
@@ -1703,5 +1710,6 @@ void CBS::clear()
 	dummy_start = nullptr;
 	goal_node = nullptr;
 	solution_found = false;
+    problem_feasible = true;
 	solution_cost = -2;
 }

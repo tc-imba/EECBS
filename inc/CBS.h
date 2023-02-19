@@ -46,6 +46,7 @@ public:
 
 
 	bool solution_found = false;
+    bool problem_feasible = true;
 	int solution_cost = -2;
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -78,9 +79,10 @@ public:
 
 	int getLowerBound() const { return cost_lowerbound; }
 
-	CBS(const Instance& instance, bool sipp, int screen);
+	CBS(const Instance& instance, bool sipp, int screen, const ConstraintTable& dynamic_obstacles_constraints);
 	CBS(vector<SingleAgentSolver*>& search_engines,
 		const vector<ConstraintTable>& constraints,
+        const ConstraintTable& dynamic_obstacles_constraints,
 		vector<Path>& paths_found_initially, int screen);
 	void clearSearchEngines();
 	~CBS();
@@ -127,6 +129,7 @@ protected:
 	int cost_upperbound = MAX_COST;
 
 	vector<ConstraintTable> initial_constraints;
+    ConstraintTable dynamic_obstacles_constraints;
 	clock_t start;
 
 	int num_of_agents;

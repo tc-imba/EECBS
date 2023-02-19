@@ -16,7 +16,10 @@ bool ECBS::solve(double time_limit, int _cost_lowerbound)
 	// set timer
 	start = clock();
 
-	generateRoot();
+	if (!generateRoot()) {
+        problem_feasible = false;
+        return solution_found;
+    }
 
 	while (!cleanup_list.empty() && !solution_found)
 	{
@@ -278,11 +281,12 @@ bool ECBS::generateRoot()
 
 	for (auto i : agents)
 	{
-		paths_found_initially[i] = search_engines[i]->findSuboptimalPath(*root, initial_constraints[i], paths, i, 0, suboptimality);
+		paths_found_initially[i] = search_engines[i]->findSuboptimalPath(*root, initial_constraints[i], dynamic_obstacles_constraints, paths, i, 0, suboptimality);
 		if (paths_found_initially[i].first.empty())
 		{
 			cerr << "The start-goal locations of agent " << i << "are not connected" << endl;
-			exit(-1);
+            return false;
+//			exit(-1);
 		}
 		paths[i] = &paths_found_initially[i].first;
 		min_f_vals[i] = paths_found_initially[i].second;
@@ -339,7 +343,7 @@ bool ECBS::generateChild(ECBSNode*  node, ECBSNode* parent)
 bool ECBS::findPathForSingleAgent(ECBSNode*  node, int ag)
 {
 	clock_t t = clock();
-	auto new_path = search_engines[ag]->findSuboptimalPath(*node, initial_constraints[ag], paths, ag, min_f_vals[ag], suboptimality);
+	auto new_path = search_engines[ag]->findSuboptimalPath(*node, initial_constraints[ag], dynamic_obstacles_constraints, paths, ag, min_f_vals[ag], suboptimality);
 	num_LL_expanded += search_engines[ag]->num_expanded;
 	num_LL_generated += search_engines[ag]->num_generated;
 	runtime_build_CT += search_engines[ag]->runtime_build_CT;
@@ -783,6 +787,7 @@ void ECBS::clear()
     dummy_start = nullptr;
     goal_node = nullptr;
     solution_found = false;
+    problem_feasible = true;
     solution_cost = -2;
 }
 

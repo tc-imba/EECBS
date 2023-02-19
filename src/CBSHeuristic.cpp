@@ -712,7 +712,7 @@ pair<int, int> CBSHeuristic::solve2Agents(int a1, int a2, const CBSNode& node, b
 	vector<ConstraintTable> constraints{ConstraintTable(initial_constraints[a1]), ConstraintTable(initial_constraints[a2]) };
     constraints[0].insert2CT(node, a1);
     constraints[1].insert2CT(node, a2);
-	CBS cbs(engines, constraints, initial_paths, screen);
+	CBS cbs(engines, constraints, dynamic_obstacles_constraints, initial_paths, screen);
 	// setUpSubSolver(cbs);
 	cbs.setPrioritizeConflicts(PC);
 	cbs.setHeuristicType(heuristics_type::CG, heuristics_type::ZERO);
@@ -763,7 +763,7 @@ tuple<int, int, int> CBSHeuristic::solve2Agents(int a1, int a2, const ECBSNode& 
 	vector<ConstraintTable> constraints{ ConstraintTable(initial_constraints[a1]), ConstraintTable(initial_constraints[a2]) };
     constraints[0].insert2CT(node, a1);
     constraints[1].insert2CT(node, a2);
-	CBS cbs(engines, constraints, initial_paths, screen);
+	CBS cbs(engines, constraints, dynamic_obstacles_constraints, initial_paths, screen);
 	// setUpSubSolver(cbs);
 	cbs.setPrioritizeConflicts(PC);
 	cbs.setHeuristicType(heuristics_type::CG, heuristics_type::ZERO);

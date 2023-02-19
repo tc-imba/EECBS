@@ -152,8 +152,10 @@ public:
 							const vector<Path*>& paths,
 							vector<SingleAgentSolver*>& search_engines,
 							const vector<ConstraintTable>& initial_constraints,
+                            const ConstraintTable &dynamic_obstacles_constraints,
 							MDDTable& mdd_helper) : num_of_agents(num_of_agents),
-		paths(paths), search_engines(search_engines), initial_constraints(initial_constraints), mdd_helper(mdd_helper) {}
+		paths(paths), search_engines(search_engines), initial_constraints(initial_constraints),
+        dynamic_obstacles_constraints(dynamic_obstacles_constraints), mdd_helper(mdd_helper) {}
 	
 	void init()
 	{
@@ -224,6 +226,7 @@ private:
 	const vector<Path*>& paths;
 	const vector<SingleAgentSolver*>& search_engines;
 	const vector<ConstraintTable>& initial_constraints;
+    const ConstraintTable &dynamic_obstacles_constraints;
 	MDDTable& mdd_helper;
 
 	void buildConflictGraph(vector<bool>& HG, const HLNode& curr);

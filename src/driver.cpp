@@ -10,10 +10,10 @@
 #include <boost/program_options.hpp>
 #include <boost/tokenizer.hpp>
 #include "ECBS.h"
-
+#include "driver.h"
 
 /* Main function */
-int main(int argc, char** argv)
+int eecbs(int argc, char** argv)
 {
 	namespace po = boost::program_options;
 	// Declare the supported options.
@@ -24,6 +24,7 @@ int main(int argc, char** argv)
 		// params for the input instance and experiment settings
 		("map,m", po::value<string>()->required(), "input file for map")
 		("agents,a", po::value<string>()->required(), "input file for agents")
+        ("dynamicObstacles", po::value<string>(), "input file for dynamic obstacles")
 		("output,o", po::value<string>(), "output file for statistics")
 		("outputPaths", po::value<string>(), "output file for paths")
 		("agentNum,k", po::value<int>()->default_value(0), "number of agents")
@@ -127,21 +128,23 @@ int main(int argc, char** argv)
 	conflict_selection conflict = conflict_selection::EARLIEST;
 	node_selection n = node_selection::NODE_CONFLICTPAIRS;
 
-
 	srand((int)time(0));
 
 	///////////////////////////////////////////////////////////////////////////
 	// load the instance
 	Instance instance(vm["map"].as<string>(), vm["agents"].as<string>(),
 		vm["agentNum"].as<int>());
-
+    if (vm.count("dynamicObstacles")) {
+        instance.loadDynamicObstacles(vm["dynamicObstacles"].as<string>());
+    }
+    const auto &dynamic_obstacles = instance.getDynamicObstacles();
 	srand(0);
 	int runs = 1 + vm["restart"].as<int>();
 	//////////////////////////////////////////////////////////////////////
     // initialize the solver
 	if (vm["lowLevelSolver"].as<bool>())
     {
-        ECBS ecbs(instance, vm["sipp"].as<bool>(), vm["screen"].as<int>());
+        ECBS ecbs(instance, vm["sipp"].as<bool>(), vm["screen"].as<int>(), dynamic_obstacles);
         ecbs.setPrioritizeConflicts(vm["prioritizingConflicts"].as<bool>());
         ecbs.setDisjointSplitting(vm["disjointSplitting"].as<bool>());
         ecbs.setBypass(vm["bypass"].as<bool>());
@@ -163,6 +166,7 @@ int main(int argc, char** argv)
             ecbs.clear();
             ecbs.solve(vm["cutoffTime"].as<double>() / runs, lowerbound);
             runtime += ecbs.runtime;
+            if (!ecbs.problem_feasible) return -1;
             if (ecbs.solution_found)
                 break;
             lowerbound = ecbs.getLowerBound();
@@ -183,7 +187,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        CBS cbs(instance, vm["sipp"].as<bool>(), vm["screen"].as<int>());
+        CBS cbs(instance, vm["sipp"].as<bool>(), vm["screen"].as<int>(), dynamic_obstacles);
         cbs.setPrioritizeConflicts(vm["prioritizingConflicts"].as<bool>());
         cbs.setDisjointSplitting(vm["disjointSplitting"].as<bool>());
         cbs.setBypass(vm["bypass"].as<bool>());
@@ -205,6 +209,7 @@ int main(int argc, char** argv)
             cbs.clear();
             cbs.solve(vm["cutoffTime"].as<double>() / runs, lowerbound);
             runtime += cbs.runtime;
+            if (!cbs.problem_feasible) return -1;
             if (cbs.solution_found)
                 break;
             lowerbound = cbs.getLowerBound();

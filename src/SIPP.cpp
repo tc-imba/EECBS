@@ -132,16 +132,16 @@ Path SIPP::findPath(const ConstraintTable& constraint_table)
     releaseNodes();
     return path;
 }
-Path SIPP::findOptimalPath(const HLNode& node, const ConstraintTable& initial_constraints,
+Path SIPP::findOptimalPath(const HLNode& node, const ConstraintTable& initial_constraints, const ConstraintTable& dynamic_obstacles_constraints,
                            const vector<Path*>& paths, int agent, int lowerbound)
 {
-    return findSuboptimalPath(node, initial_constraints, paths, agent, lowerbound, 1).first;
+    return findSuboptimalPath(node, initial_constraints, dynamic_obstacles_constraints, paths, agent, lowerbound, 1).first;
 }
 // find path by SIPP
 // Returns a shortest path that satisfies the constraints of the give node  while
 // minimizing the number of internal conflicts (that is conflicts with known_paths for other agents found so far).
 // lowerbound is an underestimation of the length of the path in order to speed up the search.
-pair<Path, int> SIPP::findSuboptimalPath(const HLNode& node, const ConstraintTable& initial_constraints,
+pair<Path, int> SIPP::findSuboptimalPath(const HLNode& node, const ConstraintTable& initial_constraints, const ConstraintTable& dynamic_obstacles_constraints,
                                          const vector<Path*>& paths, int agent, int lowerbound, double w)
 {
     reset();

@@ -6,7 +6,7 @@
 class ECBS : public CBS
 {
 public:
-	ECBS(const Instance& instance, bool sipp, int screen) : CBS(instance, sipp, screen) {}
+	ECBS(const Instance& instance, bool sipp, int screen, const ConstraintTable &dynamic_obstacles) : CBS(instance, sipp, screen, dynamic_obstacles) {}
 
 	// ECBSNode* dummy_start = nullptr;
 	// ECBSNode* goal_node = nullptr;

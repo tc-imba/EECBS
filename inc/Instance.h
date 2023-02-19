@@ -1,5 +1,6 @@
 #pragma once
 #include"common.h"
+#include "ConstraintTable.h"
 
 
 // Currently only works for undirected unweighted 4-nighbor grids
@@ -61,6 +62,10 @@ public:
 	}
 
 	int getDefaultNumberOfAgents() const { return num_of_agents; }
+
+    void loadDynamicObstacles(const string &dynamic_obstacles_fname);
+
+    const ConstraintTable &getDynamicObstacles() const { return dynamic_obstacles_constraints; }
 
 private:
 	  // int moves_offset[MOVE_COUNT];
