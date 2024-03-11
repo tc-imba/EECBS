@@ -91,6 +91,7 @@ void ConstraintTable::insert2CT(const list<Constraint>& constraints, int agent)
             }
             else // other agents cannot stay at x at timestep t - 1, be at y at timestep t, or traverse edge (y, x) from timesteps t - 1 to t
             {
+//                insert2CT(x, t - 1, t + 1);
                 insert2CT(x, t - 1, t);
                 insert2CT(y, t, t + 1);
                 insert2CT(y, x, t, t + 1);
