@@ -102,7 +102,7 @@ void CBS::findConflicts(HLNode& curr, int a1, int a2)
 			assert(!conflict->constraint2.empty());
 			curr.unknownConf.push_back(conflict); // edge conflict
 		}
-        else if (timestep < paths[a2]->size() - 1
+        /*else if (timestep < paths[a2]->size() - 1
                  && loc1 == paths[a2]->at(timestep + 1).location)
         {
             shared_ptr<Conflict> conflict(new Conflict());
@@ -119,7 +119,7 @@ void CBS::findConflicts(HLNode& curr, int a1, int a2)
             assert(!conflict->constraint1.empty());
             assert(!conflict->constraint2.empty());
             curr.unknownConf.push_back(conflict); // follow conflict (loc2)
-        }
+        }*/
 	}
 	if (paths[a1]->size() != paths[a2]->size())
 	{
